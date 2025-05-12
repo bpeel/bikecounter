@@ -274,10 +274,8 @@ function setup() {
   countButton.addEventListener("click", countButtonCb);
 
   document.getElementById("undo-button")
-    .contentDocument
     .addEventListener("click", undoCb);
   document.getElementById("download-button")
-    .contentDocument
     .addEventListener("click", downloadCb);
 }
 
