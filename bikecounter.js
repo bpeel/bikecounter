@@ -202,11 +202,11 @@ function setUpButtons() {
       button.appendChild(document.createTextNode(value));
       buttonContainer.appendChild(button);
 
-      button.addEventListener("click", clickedButtonCb);
-
       buttons.push(button);
     }
   }
+
+  buttonContainer.addEventListener("click", clickedButtonCb);
 }
 
 function setup() {
