@@ -39,7 +39,12 @@ body {
     margin-top: 1em;
 }
 
-#undo-button {
+#button-icons {
+    display: flex;
+    justify-content: space-between;
+}
+
+#undo-button, #download-button {
     width: 2em;
     height: 2em;
 }

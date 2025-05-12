@@ -203,6 +203,50 @@ function undoCb() {
   }
 }
 
+function downloadTsv(tsv) {
+  const elem = document.createElement("a");
+  elem.href = "data:text/tab-separated-values;charset=utf-8," +
+    encodeURIComponent(tsv);
+  elem.setAttribute("download", "comptage.tsv");
+  elem.style.display = "none";
+  document.body.appendChild(elem);
+  elem.click();
+  document.body.removeChild(elem);
+}
+
+function downloadCb() {
+  let tsv = "";
+  const counts = loadCounts();
+
+  for (const values of PROPERTIES) {
+    for (const value of values)
+      tsv += "\t" + value.replace(/\s+/, " ");
+  }
+
+  tsv += "\n";
+
+  for (const [timeStamp, bikeNum] of counts) {
+    const date = new Date();
+    date.setTime(timeStamp * 1000);
+    tsv += date.toISOString();
+
+    let bikeNumBits = bikeNum;
+
+    for (let i = 0; i < PROPERTIES.length; i++) {
+      if ((bikeNumBits & 1) == 0)
+        tsv += "\t1\t";
+      else
+        tsv += "\t\t1";
+
+      bikeNumBits >>= 1;
+    }
+
+    tsv += "\n";
+  }
+
+  downloadTsv(tsv);
+}
+
 function setUpButtons() {
   const buttonContainer = document.getElementById("buttons");
 
@@ -232,6 +276,9 @@ function setup() {
   document.getElementById("undo-button")
     .contentDocument
     .addEventListener("click", undoCb);
+  document.getElementById("download-button")
+    .contentDocument
+    .addEventListener("click", downloadCb);
 }
 
 setup();
