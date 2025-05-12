@@ -1,0 +1,40 @@
+body {
+    background-color: white;
+    font-family: sans-serif;
+    overscroll-behavior-y: contain;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+#buttons {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 1em;
+}
+
+#buttons .button, #count-button {
+    background-color: #ddd;
+}
+
+#buttons .button.selected, #count-button.ready {
+    background-color: #bfb;
+}
+
+#buttons .choice-0 {
+    grid-column: 1;
+}
+
+#buttons .choice-1 {
+    grid-column: 2;
+}
+
+#count-button, #buttons .button {
+    text-align: center;
+    padding: 1em;
+    border-radius: 1em;
+    user-select: none;
+}
+
+#count-button {
+    margin-top: 1em;
+}
