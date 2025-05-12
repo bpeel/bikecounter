@@ -38,3 +38,8 @@ body {
 #count-button {
     margin-top: 1em;
 }
+
+#undo-button {
+    width: 2em;
+    height: 2em;
+}

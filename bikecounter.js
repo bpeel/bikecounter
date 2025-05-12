@@ -143,6 +143,10 @@ function updateCountsTable(counts) {
     countElement.innerHTML = countValues[i];
 }
 
+function saveCounts(counts) {
+  localStorage.setItem("counts", JSON.stringify(counts));
+}
+
 function loadCounts() {
   const countsSource = localStorage.getItem("counts");
 
@@ -171,7 +175,7 @@ function countBike(bikeNum) {
 
   counts.push([Math.floor(Date.now() / 1000), bikeNum]);
 
-  localStorage.setItem("counts", JSON.stringify(counts));
+  saveCounts(counts);
 
   updateCountsTable(counts);
 }
@@ -188,6 +192,15 @@ function countButtonCb() {
   chosenValues = 0;
   chosenProperties = 0;
   countButton.classList.remove("ready");
+}
+
+function undoCb() {
+  const counts = loadCounts();
+
+  if (counts.pop() !== undefined) {
+    saveCounts(counts);
+    updateCountsTable(counts);
+  }
 }
 
 function setUpButtons() {
@@ -215,6 +228,10 @@ function setup() {
   updateCountsTable(loadCounts());
 
   countButton.addEventListener("click", countButtonCb);
+
+  document.getElementById("undo-button")
+    .contentDocument
+    .addEventListener("click", undoCb);
 }
 
 setup();
