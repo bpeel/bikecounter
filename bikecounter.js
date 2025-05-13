@@ -15,9 +15,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const PROPERTIES = [
-  [ "Ascente", "Descente" ],
-  [ "Musculaire", "VAE" ],
-  [ "Majeur", "Mineur" ],
+  [
+    { "name": "Ascente", "emoji": "↗️" },
+    { "name": "Descente", "emoji": "↘️" }
+  ],
+  [
+    { "name": "Musculaire", "emoji": "🦵" },
+    { "name": "VAE", "emoji": "🔋" }
+  ],
+  [
+    { "name": "Majeur", "emoji": "👨" },
+    { "name": "Mineur", "emoji": "👶" }
+  ],
 ];
 
 let countElements = [];
@@ -34,7 +43,7 @@ function createHeaderRow() {
 
   for (const value of PROPERTIES[0]) {
     const title = document.createElement("th");
-    title.appendChild(document.createTextNode(value));
+    title.appendChild(document.createTextNode(value.name));
     header.appendChild(title);
   }
 
@@ -48,7 +57,7 @@ function rowName(rowNumber) {
     if (name.length > 0)
       name += " + ";
 
-    name += property[rowNumber & 1];
+    name += property[rowNumber & 1].name;
 
     rowNumber >>= 1;
   }
@@ -220,7 +229,7 @@ function downloadCb() {
 
   for (const values of PROPERTIES) {
     for (const value of values)
-      tsv += "\t" + value.replace(/\s+/, " ");
+      tsv += "\t" + value.name.replace(/\s+/, " ");
   }
 
   tsv += "\n";
@@ -256,7 +265,8 @@ function setUpButtons() {
     for (const [valueNum, value] of property.entries()) {
       const button = document.createElement("div");
       button.className = "button choice-" + valueNum;
-      button.appendChild(document.createTextNode(value));
+      const buttonText = value.name + " " + value.emoji;
+      button.appendChild(document.createTextNode(buttonText));
       buttonContainer.appendChild(button);
 
       buttons.push(button);
