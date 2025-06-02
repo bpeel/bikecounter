@@ -287,15 +287,21 @@ function setUpButtons() {
   buttons = [];
 
   for (const property of PROPERTIES) {
+    const row = document.createElement("div");
+
+    row.className = "button-row";
+
     for (const [valueNum, value] of property.entries()) {
       const button = document.createElement("div");
       button.className = "button choice-" + valueNum;
       const buttonText = value.name + " " + value.emoji;
       button.appendChild(document.createTextNode(buttonText));
-      buttonContainer.appendChild(button);
+      row.appendChild(button);
 
       buttons.push(button);
     }
+
+    buttonContainer.appendChild(row);
   }
 
   buttonContainer.addEventListener("click", clickedButtonCb);

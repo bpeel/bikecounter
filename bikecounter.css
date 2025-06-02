@@ -7,9 +7,20 @@ body {
 }
 
 #buttons {
-    display: grid;
-    grid-template-columns: auto auto;
+    display: flex;
+    flex-direction: column;
     gap: 1em;
+}
+
+.button-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    flex-grow: 1;
+}
+
+.button {
+    flex-grow: 1;
 }
 
 #buttons .button, #count-button {
