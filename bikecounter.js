@@ -20,12 +20,14 @@ const PROPERTIES = [
     { "name": "Descente", "emoji": "↘️" }
   ],
   [
-    { "name": "Musculaire", "emoji": "🦵" },
-    { "name": "VAE", "emoji": "🔋" }
+    { "name": "Vélo", "emoji": "🚲" },
+    { "name": "Cargo&Co", "emoji": "📦" },
+    { "name": "EDPM", "emoji": "🛴" }
   ],
   [
-    { "name": "Majeur", "emoji": "👨" },
-    { "name": "Mineur", "emoji": "👶" }
+    { "name": "Homme", "emoji": "♂️" },
+    { "name": "Femme", "emoji": "♀️" },
+    { "name": "Enfant", "emoji": "👶" }
   ],
 ];
 
