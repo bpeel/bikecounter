@@ -35,6 +35,8 @@ let chosenProperties = 0;
 let chosenValues = 0;
 const countButton = document.getElementById("count-button");
 
+const LOCAL_STORAGE_COUNTS_PROPERTY = "bikecounter-counts";
+
 function createHeaderRow() {
   // Set the first property as the header row
   const header = document.createElement("tr");
@@ -172,11 +174,11 @@ function updateCountsTable(counts) {
 }
 
 function saveCounts(counts) {
-  localStorage.setItem("counts", JSON.stringify(counts));
+  localStorage.setItem(LOCAL_STORAGE_COUNTS_PROPERTY, JSON.stringify(counts));
 }
 
 function loadCounts() {
-  const countsSource = localStorage.getItem("counts");
+  const countsSource = localStorage.getItem(LOCAL_STORAGE_COUNTS_PROPERTY);
 
   if (countsSource === null)
     return [];
