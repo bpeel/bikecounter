@@ -57,9 +57,9 @@ function rowName(rowNumber) {
     if (name.length > 0)
       name += " + ";
 
-    name += property[rowNumber & 1].name;
+    name += property[rowNumber % property.length].name;
 
-    rowNumber >>= 1;
+    rowNumber = Math.floor(rowNumber / property.length);
   }
 
   return name;
@@ -74,7 +74,7 @@ function createValueRow(rowNumber) {
   label.appendChild(document.createTextNode(rowName(rowNumber)));
   row.appendChild(label);
 
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < PROPERTIES[0].length; i++) {
     const countElement = document.createElement("td");
     countElement.appendChild(document.createTextNode("0"));
     row.appendChild(countElement);
@@ -92,7 +92,7 @@ function setUpCounts() {
 
   counts.appendChild(createHeaderRow());
 
-  const nRows = 1 << (PROPERTIES.length - 1);
+  const nRows = PROPERTIES.slice(1).reduce((a, b) => a * b.length, 1);
 
   for (let i = 0; i < nRows; i++) {
     const [row, rowCountElements] = createValueRow(i);
@@ -108,17 +108,27 @@ function allChoicesAreMade() {
   return chosenProperties >= (1 << PROPERTIES.length) - 1;
 }
 
+function extractPropertyAndValue(buttonNum) {
+  let firstButton = 0;
+
+  for (const [propertyNum, property] of PROPERTIES.entries()) {
+    if (buttonNum - firstButton < property.length)
+      return [propertyNum, firstButton, buttonNum - firstButton];
+
+    firstButton += property.length;
+  }
+}
+
 function clickedButtonCb(event) {
   const buttonNum = buttons.findIndex((button) => button == event.target);
 
   if (buttonNum == -1)
     return;
 
-  const property = buttonNum >> 1;
-  const value = buttonNum & 1;
+  const [property, firstButton, value] = extractPropertyAndValue(buttonNum);
 
-  for (let i = 0; i < 2; i++) {
-    const classList = buttons[(property << 1) + i].classList;
+  for (let i = 0; i < PROPERTIES[property].length; i++) {
+    const classList = buttons[firstButton + i].classList;
 
     if (i == value)
       classList.add("selected");
@@ -126,10 +136,19 @@ function clickedButtonCb(event) {
       classList.remove("selected");
   }
 
-  if (value == 0)
-    chosenValues &= ~(1 << property);
-  else
-    chosenValues |= 1 << property;
+  const earlierMask = PROPERTIES.slice(0, property).reduce(
+    (a, b) => a * b.length,
+    1
+  );
+  const laterMask = earlierMask * PROPERTIES[property].length;
+
+  const earlierValues = chosenValues % earlierMask;
+  const laterValues = Math.floor(chosenValues / laterMask);
+
+  chosenValues =
+    earlierValues +
+    value * earlierMask +
+    laterValues * laterMask;
 
   chosenProperties |= 1 << property;
 
@@ -241,13 +260,15 @@ function downloadCb() {
 
     let bikeNumBits = bikeNum;
 
-    for (let i = 0; i < PROPERTIES.length; i++) {
-      if ((bikeNumBits & 1) == 0)
-        tsv += "\t1\t";
-      else
-        tsv += "\t\t1";
+    for (const property of PROPERTIES) {
+      for (let value = 0; value < property.length; value++) {
+        if (bikeNumBits % property.length == value)
+          tsv += "\t1";
+        else
+          tsv += "\t";
+      }
 
-      bikeNumBits >>= 1;
+      bikeNumBits = Math.floor(bikeNumBits / property.length);
     }
 
     tsv += "\n";
