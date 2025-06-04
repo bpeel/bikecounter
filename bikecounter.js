@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-const PROPERTIES = [
+let properties = [
   [
     { "name": "Ascente", "emoji": "↗️" },
     { "name": "Descente", "emoji": "↘️" }
@@ -51,7 +51,7 @@ function createHeaderRow() {
 
   header.appendChild(document.createElement("th"));
 
-  for (const value of PROPERTIES[0]) {
+  for (const value of properties[0]) {
     const title = document.createElement("th");
     title.appendChild(document.createTextNode(value.name));
     header.appendChild(title);
@@ -63,7 +63,7 @@ function createHeaderRow() {
 function rowName(rowNumber) {
   let name = "";
 
-  for (const property of PROPERTIES.slice(1)) {
+  for (const property of properties.slice(1)) {
     if (name.length > 0)
       name += " + ";
 
@@ -84,7 +84,7 @@ function createValueRow(rowNumber) {
   label.appendChild(document.createTextNode(rowName(rowNumber)));
   row.appendChild(label);
 
-  for (let i = 0; i < PROPERTIES[0].length; i++) {
+  for (let i = 0; i < properties[0].length; i++) {
     const countElement = document.createElement("td");
     countElement.appendChild(document.createTextNode("0"));
     row.appendChild(countElement);
@@ -102,7 +102,7 @@ function setUpCounts() {
 
   counts.appendChild(createHeaderRow());
 
-  const nRows = PROPERTIES.slice(1).reduce((a, b) => a * b.length, 1);
+  const nRows = properties.slice(1).reduce((a, b) => a * b.length, 1);
 
   for (let i = 0; i < nRows; i++) {
     const [row, rowCountElements] = createValueRow(i);
@@ -115,13 +115,13 @@ function setUpCounts() {
 }
 
 function allChoicesAreMade() {
-  return chosenProperties >= (1 << PROPERTIES.length) - 1;
+  return chosenProperties >= (1 << properties.length) - 1;
 }
 
 function extractPropertyAndValue(buttonNum) {
   let firstButton = 0;
 
-  for (const [propertyNum, property] of PROPERTIES.entries()) {
+  for (const [propertyNum, property] of properties.entries()) {
     if (buttonNum - firstButton < property.length)
       return [propertyNum, firstButton, buttonNum - firstButton];
 
@@ -137,7 +137,7 @@ function clickedButtonCb(event) {
 
   const [property, firstButton, value] = extractPropertyAndValue(buttonNum);
 
-  for (let i = 0; i < PROPERTIES[property].length; i++) {
+  for (let i = 0; i < properties[property].length; i++) {
     const classList = buttons[firstButton + i].classList;
 
     if (i == value)
@@ -146,11 +146,11 @@ function clickedButtonCb(event) {
       classList.remove("selected");
   }
 
-  const earlierMask = PROPERTIES.slice(0, property).reduce(
+  const earlierMask = properties.slice(0, property).reduce(
     (a, b) => a * b.length,
     1
   );
-  const laterMask = earlierMask * PROPERTIES[property].length;
+  const laterMask = earlierMask * properties[property].length;
 
   const earlierValues = chosenValues % earlierMask;
   const laterValues = Math.floor(chosenValues / laterMask);
@@ -332,7 +332,7 @@ function updatePropertyInputs() {
 
   propertiesElem.innerHTML = "";
 
-  for (const property of PROPERTIES) {
+  for (const property of properties) {
     const propertyDiv = createPropertyDiv(property);
     propertiesElem.appendChild(propertyDiv);
   }
@@ -442,7 +442,7 @@ function downloadCb() {
   let tsv = "";
   const counts = loadCounts();
 
-  for (const values of PROPERTIES) {
+  for (const values of properties) {
     for (const value of values)
       tsv += "\t" + value.name.replace(/\s+/, " ");
   }
@@ -456,7 +456,7 @@ function downloadCb() {
 
     let bikeNumBits = bikeNum;
 
-    for (const property of PROPERTIES) {
+    for (const property of properties) {
       for (let value = 0; value < property.length; value++) {
         if (bikeNumBits % property.length == value)
           tsv += "\t1";
@@ -478,7 +478,7 @@ function setUpButtons() {
 
   buttons = [];
 
-  for (const property of PROPERTIES) {
+  for (const property of properties) {
     const row = document.createElement("div");
 
     row.className = "button-row";
