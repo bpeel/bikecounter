@@ -310,9 +310,51 @@ function addValueCb(event) {
   hideEditError();
 }
 
+function moveUpCb(event) {
+  const propertyDiv = findParentWithClass(event.target, "property");
+
+  if (!propertyDiv)
+    return;
+
+  const parent = propertyDiv.parentNode;
+  const previous = propertyDiv.previousElementSibling;
+
+  if (previous)
+    parent.insertBefore(propertyDiv, previous);
+}
+
+function moveDownCb(event) {
+  const propertyDiv = findParentWithClass(event.target, "property");
+
+  if (!propertyDiv)
+    return;
+
+  const parent = propertyDiv.parentNode;
+  const next = propertyDiv.nextElementSibling;
+
+  if (next) {
+    if (next.nextSibling)
+      parent.insertBefore(propertyDiv, next.nextSibling);
+    else
+      parent.appendChild(propertyDiv);
+  }
+}
+
 function createPropertyDiv(property) {
   const propertyDiv = document.createElement("div");
   propertyDiv.className = "property";
+
+  const moveUpButton = document.createElement("div");
+  moveUpButton.appendChild(document.createTextNode("⬆️"));
+  moveUpButton.className = "move-up-button";
+  moveUpButton.addEventListener("click", moveUpCb);
+  propertyDiv.appendChild(moveUpButton);
+
+  const moveDownButton = document.createElement("div");
+  moveDownButton.appendChild(document.createTextNode("⬇️"));
+  moveDownButton.className = "move-down-button";
+  moveDownButton.addEventListener("click", moveDownCb);
+  propertyDiv.appendChild(moveDownButton);
 
   for (const value of property) {
     const valueDiv = createValueDiv(value.name, value.emoji);

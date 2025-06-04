@@ -100,3 +100,8 @@ body {
     margin-top: 1em;
     color: red;
 }
+
+.move-up-button, .move-down-button {
+    display: inline-block;
+    user-select: none;
+}
