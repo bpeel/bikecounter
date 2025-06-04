@@ -27,7 +27,8 @@ body {
     background-color: #ddd;
 }
 
-#buttons .button.selected, #count-button.ready {
+#buttons .button.selected, #count-button.ready, .confirm-button,
+#commit-edit-button, .add-value-button, #add-property-button {
     background-color: #bfb;
 }
 
@@ -39,14 +40,15 @@ body {
     grid-column: 2;
 }
 
-#count-button, #buttons .button {
+.confirm-button, #count-button, #buttons .button,
+#commit-edit-button {
     text-align: center;
     padding: 1em;
     border-radius: 1em;
     user-select: none;
 }
 
-#count-button {
+#count-button, #commit-edit-button {
     margin-top: 1em;
 }
 
@@ -55,7 +57,46 @@ body {
     justify-content: space-between;
 }
 
-#undo-button, #download-button {
+#button-icons img {
     width: 2em;
     height: 2em;
+}
+
+#confirm-page-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.value {
+    display: flex;
+    flex-direction: row;
+}
+
+.value-name {
+    width: 10em;
+}
+
+.value-emoji {
+    width: 2em;
+}
+
+.remove-value-button {
+    user-select: none;
+}
+
+.add-value-button, #add-property-button {
+    display: inline-block;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    user-select: none;
+}
+
+#edit-properties {
+    margin-top: 1em;
+}
+
+#edit-error-message {
+    margin-top: 1em;
+    color: red;
 }

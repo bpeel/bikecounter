@@ -29,16 +29,47 @@
     <script type="module" src="bikecounter.js"></script>
   </head>
   <body>
-    <div id="button-icons">
-      <img id="undo-button" src="undo.svg" alt="Annuler">
-      <img id="download-button" src="download.svg" alt="Télécharger">
+    <div id="counter-page">
+      <div id="button-icons">
+        <img id="undo-button" src="undo.svg" alt="Annuler">
+        <img id="edit-button" src="edit.svg" alt="Modifier">
+        <img id="download-button"
+             src="download.svg"
+             alt="Télécharger">
+      </div>
+      <table id="counts">
+      </table>
+      <div id="buttons">
+      </div>
+      <div id="count-button">
+        Compter
+      </div>
     </div>
-    <table id="counts">
-    </table>
-    <div id="buttons">
+    <div id="confirm-page" style="display: none">
+      <p>
+        Modifier les attributs remettra les compteurs à zéro.
+        Êtes-vous sûr·e de vouloir continuer ?
+      </p>
+      <div id="confirm-page-buttons">
+        <div id="no-edit-button" class="confirm-button">
+          Retour aux compteurs
+        </div>
+        <div id="yes-edit-button" class="confirm-button">
+          Modifier les attributs
+        </div>
+      </div>
     </div>
-    <div id="count-button">
-      Compter
+    <div id="edit-page" style="display: none">
+      <div id="edit-properties">
+      </div>
+      <div id="add-property-button">
+        Ajouter un attribut
+      </div>
+      <div id="edit-error-message" style="display: none">
+      </div>
+      <div id="commit-edit-button">
+        Terminer les modifications
+      </div>
     </div>
   </body>
 </html>

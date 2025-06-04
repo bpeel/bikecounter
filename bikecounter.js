@@ -31,6 +31,12 @@ const PROPERTIES = [
   ],
 ];
 
+const PAGES = [
+  "counter",
+  "confirm",
+  "edit",
+];
+
 let countElements = [];
 let buttons = [];
 let chosenProperties = 0;
@@ -235,6 +241,192 @@ function undoCb() {
   }
 }
 
+function findParentWithClass(node, className) {
+  while (node) {
+    if (node instanceof Element && node.className == className)
+      return node;
+
+    node = node.parentNode;
+  }
+
+  return null;
+}
+
+function hideEditError() {
+  document.getElementById("edit-error-message").style.display = "none";
+}
+
+function removeValueCb(event) {
+  const valueDiv = findParentWithClass(event.target, "value");
+
+  if (!valueDiv)
+    return;
+
+  const propertyDiv = valueDiv.parentNode;
+
+  propertyDiv.removeChild(valueDiv);
+
+  const firstValue = propertyDiv.querySelector(".value");
+
+  if (!firstValue)
+    propertyDiv.parentNode.removeChild(propertyDiv);
+
+  hideEditError();
+}
+
+function createValueDiv(name, emoji) {
+  const valueDiv = document.createElement("div");
+  valueDiv.className = "value";
+
+  const nameElem = document.createElement("input");
+  nameElem.setAttribute("type", "text");
+  nameElem.className = "value-name";
+  nameElem.value = name;
+  valueDiv.appendChild(nameElem);
+
+  const emojiElem = document.createElement("input");
+  emojiElem.setAttribute("type", "text");
+  emojiElem.className = "value-emoji";
+  emojiElem.value = emoji;
+  valueDiv.appendChild(emojiElem);
+
+  const removeButton = document.createElement("div");
+  removeButton.className = "remove-value-button";
+  removeButton.appendChild(document.createTextNode("🗑️"));
+  removeButton.addEventListener("click", removeValueCb);
+  valueDiv.appendChild(removeButton);
+
+  return valueDiv;
+}
+
+function addValueCb(event) {
+  const valueDiv = createValueDiv("A", "🅰️");
+
+  event.target.parentNode.insertBefore(valueDiv, event.target);
+
+  hideEditError();
+}
+
+function createPropertyDiv(property) {
+  const propertyDiv = document.createElement("div");
+  propertyDiv.className = "property";
+
+  for (const value of property) {
+    const valueDiv = createValueDiv(value.name, value.emoji);
+    propertyDiv.appendChild(valueDiv);
+  }
+
+  const addValueButton = document.createElement("div");
+  addValueButton.addEventListener("click", addValueCb);
+  addValueButton.appendChild(document.createTextNode("Ajouter une valeur"));
+  addValueButton.className = "add-value-button";
+  propertyDiv.appendChild(addValueButton);
+
+  propertyDiv.appendChild(document.createElement("hr"));
+
+  return propertyDiv;
+}
+
+function updatePropertyInputs() {
+  const propertiesElem = document.getElementById("edit-properties");
+
+  propertiesElem.innerHTML = "";
+
+  for (const property of PROPERTIES) {
+    const propertyDiv = createPropertyDiv(property);
+    propertiesElem.appendChild(propertyDiv);
+  }
+}
+
+function addPropertyCb() {
+  const propertyDiv = createPropertyDiv(
+    [
+      { "name": "A", "emoji": "🅰️" },
+      { "name": "B", "emoji": "🅱️" },
+    ]
+  );
+
+  document.getElementById("edit-properties").appendChild(propertyDiv);
+
+  hideEditError();
+}
+
+function extractProperties() {
+  const properties = [];
+
+  const editPropertiesElem = document.getElementById("edit-properties");
+
+  for (const propertyDiv of editPropertiesElem.children) {
+    if (propertyDiv.className != "property")
+      continue;
+
+    const property = [];
+
+    for (const valueDiv of propertyDiv.children) {
+      if (valueDiv.className != "value")
+        continue;
+
+      const value = {
+        "name": valueDiv.querySelector(".value-name").value,
+        "emoji": valueDiv.querySelector(".value-emoji").value,
+      };
+
+      property.push(value);
+    }
+
+    properties.push(property);
+  }
+
+  return properties;
+}
+
+function validateProperties(properties) {
+  if (properties.length == 0)
+    return "Il faut au moins un attribut !";
+
+  for (const property of properties) {
+    for (const value of property) {
+      if (!(/\S/.test(value.name)))
+        return "Une des valeurs n’a pas de nom.";
+    }
+  }
+
+  return null;
+}
+
+function commitEditCb() {
+  const properties = extractProperties();
+  const errorMessage = validateProperties(properties);
+
+  if (errorMessage) {
+    const errorMessageDiv = document.getElementById("edit-error-message");
+    errorMessageDiv.innerHTML = "";
+    errorMessageDiv.appendChild(document.createTextNode(errorMessage));
+    errorMessageDiv.style.display = "block";
+  } else {
+    setPage("counter");
+  }
+}
+
+function editInputCb(event) {
+  if (["value-name", "value-emoji"].includes(event.target.className))
+    hideEditError();
+}
+
+function editCb() {
+  setPage("confirm");
+
+  updatePropertyInputs();
+}
+
+function noEditCb() {
+  setPage("counter");
+}
+
+function yesEditCb() {
+  setPage("edit");
+}
+
 function downloadTsv(tsv) {
   const elem = document.createElement("a");
   elem.href = "data:text/tab-separated-values;charset=utf-8," +
@@ -307,6 +499,13 @@ function setUpButtons() {
   buttonContainer.addEventListener("click", clickedButtonCb);
 }
 
+function setPage(chosenPage) {
+  for (const page of PAGES) {
+    const elem = document.getElementById(page + "-page");
+    elem.style.display = page == chosenPage ? "block" : "none";
+  }
+}
+
 function setup() {
   setUpCounts();
   setUpButtons();
@@ -316,8 +515,20 @@ function setup() {
 
   document.getElementById("undo-button")
     .addEventListener("click", undoCb);
+  document.getElementById("edit-button")
+    .addEventListener("click", editCb);
+  document.getElementById("no-edit-button")
+    .addEventListener("click", noEditCb);
+  document.getElementById("yes-edit-button")
+    .addEventListener("click", yesEditCb);
   document.getElementById("download-button")
     .addEventListener("click", downloadCb);
+  document.getElementById("add-property-button")
+    .addEventListener("click", addPropertyCb);
+  document.getElementById("commit-edit-button")
+    .addEventListener("click", commitEditCb);
+  document.getElementById("edit-properties")
+    .addEventListener("input", editInputCb);
 }
 
 setup();
