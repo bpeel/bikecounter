@@ -6,6 +6,7 @@ files=(
     "index.html"
     "undo.svg"
     "download.svg"
+    "edit.svg"
 )
 
 included_files=(
