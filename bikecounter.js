@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-let properties = [
+const DEFAULT_PROPERTIES = [
   [
     { "name": "Ascente", "emoji": "↗️" },
     { "name": "Descente", "emoji": "↘️" }
@@ -31,6 +31,8 @@ let properties = [
   ],
 ];
 
+let properties = DEFAULT_PROPERTIES;
+
 const PAGES = [
   "counter",
   "confirm",
@@ -44,6 +46,7 @@ let chosenValues = 0;
 const countButton = document.getElementById("count-button");
 
 const LOCAL_STORAGE_COUNTS_PROPERTY = "bikecounter-counts";
+const LOCAL_STORAGE_PROPERTIES_PROPERTY = "bikecounter-properties";
 
 function createHeaderRow() {
   // Set the first property as the header row
@@ -395,8 +398,8 @@ function validateProperties(properties) {
 }
 
 function commitEditCb() {
-  const properties = extractProperties();
-  const errorMessage = validateProperties(properties);
+  const newProperties = extractProperties();
+  const errorMessage = validateProperties(newProperties);
 
   if (errorMessage) {
     const errorMessageDiv = document.getElementById("edit-error-message");
@@ -405,6 +408,15 @@ function commitEditCb() {
     errorMessageDiv.style.display = "block";
   } else {
     setPage("counter");
+    properties = newProperties;
+    chosenProperties = 0;
+    chosenValues = 0;
+    localStorage.removeItem(LOCAL_STORAGE_COUNTS_PROPERTY);
+    localStorage.setItem(LOCAL_STORAGE_PROPERTIES_PROPERTY,
+                         JSON.stringify(properties));
+    countButton.classList.remove("ready");
+    setUpButtons();
+    setUpCounts();
   }
 }
 
@@ -476,6 +488,8 @@ function downloadCb() {
 function setUpButtons() {
   const buttonContainer = document.getElementById("buttons");
 
+  buttonContainer.innerHTML = "";
+
   buttons = [];
 
   for (const property of properties) {
@@ -506,7 +520,55 @@ function setPage(chosenPage) {
   }
 }
 
+function loadProperties() {
+  const propertiesSource =
+        localStorage.getItem(LOCAL_STORAGE_PROPERTIES_PROPERTY);
+
+  if (propertiesSource === null)
+    return DEFAULT_PROPERTIES;
+
+  let newProperties;
+
+  try {
+    newProperties = JSON.parse(propertiesSource);
+  } catch (e) {
+    if (e instanceof SyntaxError)
+      return DEFAULT_PROPERTIES;
+    else
+      throw e;
+  }
+
+  if (!(newProperties instanceof Array))
+    return DEFAULT_PROPERTIES;
+
+  const properties = [];
+
+  for (const property of newProperties) {
+    const values = [];
+
+    for (const value of property) {
+      if (Object.hasOwn(value, "name") &&
+          Object.hasOwn(value, "emoji")) {
+        values.push({
+          "name": value.name.toString(),
+          "emoji": value.emoji.toString(),
+        });
+      }
+    }
+
+    if (values.length > 0)
+      properties.push(values);
+  }
+
+  if (properties.length == 0)
+    return DEFAULT_PROPERTIES;
+
+  return properties;
+}
+
 function setup() {
+  properties = loadProperties();
+
   setUpCounts();
   setUpButtons();
   updateCountsTable(loadCounts());
