@@ -277,6 +277,64 @@ function removeValueCb(event) {
   hideEditError();
 }
 
+
+function findParentValueOrProperty(node) {
+  while (node) {
+    if (node instanceof Element &&
+        ["property", "value"].includes(node.className)) {
+      return node;
+    }
+
+    node = node.parentNode;
+  }
+
+  return null;
+}
+
+function moveUpCb(event) {
+  const div = findParentValueOrProperty(event.target);
+
+  if (!div)
+    return;
+
+  const previous = div.previousElementSibling;
+
+  if (previous && previous.className == div.className)
+    div.parentNode.insertBefore(div, previous);
+}
+
+function moveDownCb(event) {
+  const div = findParentValueOrProperty(event.target);
+
+  if (!div)
+    return;
+
+  const next = div.nextElementSibling;
+
+  if (next && next.className == div.className) {
+    const parent = div.parentNode;
+
+    if (next.nextSibling)
+      parent.insertBefore(div, next.nextSibling);
+    else
+      parent.appendChild(div);
+  }
+}
+
+function addMoveButtons(parent) {
+  const moveUpButton = document.createElement("div");
+  moveUpButton.appendChild(document.createTextNode("⬆️"));
+  moveUpButton.className = "move-up-button";
+  moveUpButton.addEventListener("click", moveUpCb);
+  parent.appendChild(moveUpButton);
+
+  const moveDownButton = document.createElement("div");
+  moveDownButton.appendChild(document.createTextNode("⬇️"));
+  moveDownButton.className = "move-down-button";
+  moveDownButton.addEventListener("click", moveDownCb);
+  parent.appendChild(moveDownButton);
+}
+
 function createValueDiv(name, emoji) {
   const valueDiv = document.createElement("div");
   valueDiv.className = "value";
@@ -292,6 +350,8 @@ function createValueDiv(name, emoji) {
   emojiElem.className = "value-emoji";
   emojiElem.value = emoji;
   valueDiv.appendChild(emojiElem);
+
+  addMoveButtons(valueDiv);
 
   const removeButton = document.createElement("div");
   removeButton.className = "remove-value-button";
@@ -310,51 +370,11 @@ function addValueCb(event) {
   hideEditError();
 }
 
-function moveUpCb(event) {
-  const propertyDiv = findParentWithClass(event.target, "property");
-
-  if (!propertyDiv)
-    return;
-
-  const parent = propertyDiv.parentNode;
-  const previous = propertyDiv.previousElementSibling;
-
-  if (previous)
-    parent.insertBefore(propertyDiv, previous);
-}
-
-function moveDownCb(event) {
-  const propertyDiv = findParentWithClass(event.target, "property");
-
-  if (!propertyDiv)
-    return;
-
-  const parent = propertyDiv.parentNode;
-  const next = propertyDiv.nextElementSibling;
-
-  if (next) {
-    if (next.nextSibling)
-      parent.insertBefore(propertyDiv, next.nextSibling);
-    else
-      parent.appendChild(propertyDiv);
-  }
-}
-
 function createPropertyDiv(property) {
   const propertyDiv = document.createElement("div");
   propertyDiv.className = "property";
 
-  const moveUpButton = document.createElement("div");
-  moveUpButton.appendChild(document.createTextNode("⬆️"));
-  moveUpButton.className = "move-up-button";
-  moveUpButton.addEventListener("click", moveUpCb);
-  propertyDiv.appendChild(moveUpButton);
-
-  const moveDownButton = document.createElement("div");
-  moveDownButton.appendChild(document.createTextNode("⬇️"));
-  moveDownButton.className = "move-down-button";
-  moveDownButton.addEventListener("click", moveDownCb);
-  propertyDiv.appendChild(moveDownButton);
+  addMoveButtons(propertyDiv);
 
   for (const value of property) {
     const valueDiv = createValueDiv(value.name, value.emoji);
