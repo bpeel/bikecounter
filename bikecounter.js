@@ -348,8 +348,8 @@ function moveDownCb(event) {
 function showEmojiSelectorCb(event) {
   const selectorStyle = document.getElementById("emoji-selector").style;
 
-  selectorStyle.left = event.clientX + "px";
-  selectorStyle.top = event.clientY + "px";
+  selectorStyle.left = "min(calc(100vw - 10em), " + event.clientX + "px";
+  selectorStyle.top = "min(calc(100vh - 7em), " + event.clientY + "px";
   selectorStyle.display = "block";
 
   currentlyEditedEmoji = event.target.parentNode.querySelector(".value-emoji");
