@@ -470,6 +470,8 @@ function validateProperties(properties) {
     for (const value of property) {
       if (!(/\S/.test(value.name)))
         return "Une des valeurs n’a pas de nom.";
+      if (!(/\S/.test(value.emoji)))
+        return "Une des valeurs n’a pas d’émoji.";
     }
   }
 
