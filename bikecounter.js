@@ -50,14 +50,25 @@ const LOCAL_STORAGE_COUNTS_PROPERTY = "bikecounter-counts";
 const LOCAL_STORAGE_PROPERTIES_PROPERTY = "bikecounter-properties";
 
 function createHeaderRow() {
-  // Set the first property as the header row
   const header = document.createElement("tr");
 
   header.appendChild(document.createElement("th"));
 
-  for (const value of properties[0]) {
+  // Set the first half of the properties as the header row
+  const nProperties = Math.ceil(properties.length / 2);
+  const headerProperties = properties.slice(0, nProperties);
+  const nValues = headerProperties.reduce((a, b) => a * b.length, 1);
+
+  for (let i = 0; i < nValues; i++) {
     const title = document.createElement("th");
-    title.appendChild(document.createTextNode(value.name));
+    let valueNum = i;
+
+    for (const property of headerProperties) {
+      const value = property[valueNum % property.length];
+      title.appendChild(document.createTextNode(value.emoji));
+      valueNum = Math.floor(valueNum / property.length);
+    }
+
     header.appendChild(title);
   }
 
@@ -65,14 +76,12 @@ function createHeaderRow() {
 }
 
 function rowName(rowNumber) {
+  const nHeaderProperties = Math.ceil(properties.length / 2);
+
   let name = "";
 
-  for (const property of properties.slice(1)) {
-    if (name.length > 0)
-      name += " + ";
-
-    name += property[rowNumber % property.length].name;
-
+  for (const property of properties.slice(nHeaderProperties)) {
+    name += property[rowNumber % property.length].emoji;
     rowNumber = Math.floor(rowNumber / property.length);
   }
 
@@ -88,7 +97,11 @@ function createValueRow(rowNumber) {
   label.appendChild(document.createTextNode(rowName(rowNumber)));
   row.appendChild(label);
 
-  for (let i = 0; i < properties[0].length; i++) {
+  const nHeaderProperties = Math.ceil(properties.length / 2);
+  const headerProperties = properties.slice(0, nHeaderProperties);
+  const nHeaderValues = headerProperties.reduce((a, b) => a * b.length, 1);
+
+  for (let i = 0; i < nHeaderValues; i++) {
     const countElement = document.createElement("td");
     countElement.appendChild(document.createTextNode("0"));
     row.appendChild(countElement);
@@ -106,7 +119,9 @@ function setUpCounts() {
 
   counts.appendChild(createHeaderRow());
 
-  const nRows = properties.slice(1).reduce((a, b) => a * b.length, 1);
+  const nHeaderProperties = Math.ceil(properties.length / 2);
+  const rowProperties = properties.slice(nHeaderProperties);
+  const nRows = rowProperties.reduce((a, b) => a * b.length, 1);
 
   for (let i = 0; i < nRows; i++) {
     const [row, rowCountElements] = createValueRow(i);
