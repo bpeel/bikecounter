@@ -63,7 +63,12 @@ function createHeaderRow() {
     const title = document.createElement("th");
     let valueNum = i;
 
-    for (const property of headerProperties) {
+    for (const [propertyNum, property] of headerProperties.entries()) {
+      if (propertyNum > 0) {
+         // Add zero-width space
+        title.appendChild(document.createTextNode("\u200b"));
+      }
+
       const value = property[valueNum % property.length];
       title.appendChild(document.createTextNode(value.emoji));
       valueNum = Math.floor(valueNum / property.length);
@@ -77,10 +82,13 @@ function createHeaderRow() {
 
 function rowName(rowNumber) {
   const nHeaderProperties = Math.ceil(properties.length / 2);
+  const headerProperties = properties.slice(nHeaderProperties);
 
   let name = "";
 
-  for (const property of properties.slice(nHeaderProperties)) {
+  for (const [i, property] of headerProperties.entries()) {
+    if (i > 0)
+      name += "\u200b"; // zero-width space
     name += property[rowNumber % property.length].emoji;
     rowNumber = Math.floor(rowNumber / property.length);
   }
