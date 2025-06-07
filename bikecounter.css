@@ -101,7 +101,16 @@ body {
     color: red;
 }
 
-.move-up-button, .move-down-button {
+.move-up-button, .move-down-button, .emoji-selector-button {
     display: inline-block;
     user-select: none;
+}
+
+#emoji-selector {
+    border: 1.5pt solid black;
+    padding: 0.5em;
+    position: fixed;
+    max-width: 8em;
+    user-select: none;
+    background-color: white;
 }

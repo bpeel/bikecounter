@@ -44,6 +44,7 @@ let buttons = [];
 let chosenProperties = 0;
 let chosenValues = 0;
 const countButton = document.getElementById("count-button");
+let currentlyEditedEmoji = null;
 
 const LOCAL_STORAGE_COUNTS_PROPERTY = "bikecounter-counts";
 const LOCAL_STORAGE_PROPERTIES_PROPERTY = "bikecounter-properties";
@@ -321,6 +322,16 @@ function moveDownCb(event) {
   }
 }
 
+function showEmojiSelectorCb(event) {
+  const selectorStyle = document.getElementById("emoji-selector").style;
+
+  selectorStyle.left = event.clientX + "px";
+  selectorStyle.top = event.clientY + "px";
+  selectorStyle.display = "block";
+
+  currentlyEditedEmoji = event.target.parentNode.querySelector(".value-emoji");
+}
+
 function addMoveButtons(parent) {
   const moveUpButton = document.createElement("div");
   moveUpButton.appendChild(document.createTextNode("⬆️"));
@@ -350,6 +361,12 @@ function createValueDiv(name, emoji) {
   emojiElem.className = "value-emoji";
   emojiElem.value = emoji;
   valueDiv.appendChild(emojiElem);
+
+  const emojiSelector = document.createElement("div");
+  emojiSelector.className = "emoji-selector-button";
+  emojiSelector.appendChild(document.createTextNode("🙂︎"));
+  emojiSelector.addEventListener("click", showEmojiSelectorCb);
+  valueDiv.appendChild(emojiSelector);
 
   addMoveButtons(valueDiv);
 
@@ -547,6 +564,32 @@ function downloadCb() {
   downloadTsv(tsv);
 }
 
+function hideEmojiSelector() {
+  document.getElementById("emoji-selector").style.display = "none";
+}
+
+function keydownCb() {
+  hideEmojiSelector();
+}
+
+function clickCb(event) {
+  if (event.target.className == "emoji-selector-button")
+    return;
+
+  const emojiSelector = document.getElementById("emoji-selector");
+
+  if (!emojiSelector.contains(event.target)) {
+    hideEmojiSelector();
+    return;
+  }
+
+  if (event.target.className != "emoji" || !currentlyEditedEmoji)
+    return;
+
+  currentlyEditedEmoji.value = event.target.textContent;
+  hideEmojiSelector();
+}
+
 function setUpButtons() {
   const buttonContainer = document.getElementById("buttons");
 
@@ -653,6 +696,8 @@ function setup() {
     .addEventListener("click", commitEditCb);
   document.getElementById("edit-properties")
     .addEventListener("input", editInputCb);
+  document.addEventListener("keydown", keydownCb);
+  document.addEventListener("click", clickCb);
 }
 
 setup();
