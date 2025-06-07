@@ -6,6 +6,21 @@ body {
     margin-bottom: 0px;
 }
 
+#counts {
+    border: 1.5pt solid black;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+#counts th, #counts td {
+    border-left: 1.5pt solid black;
+    border-right: 1.5pt solid black;
+}
+
+#counts th {
+    border-bottom: 1.5pt solid black;
+}
+
 #buttons {
     display: flex;
     flex-direction: column;
