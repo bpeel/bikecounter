@@ -16,7 +16,7 @@
 
 const DEFAULT_PROPERTIES = [
   [
-    { "name": "Ascente", "emoji": "↗️" },
+    { "name": "Montée", "emoji": "↗️" },
     { "name": "Descente", "emoji": "↘️" }
   ],
   [
