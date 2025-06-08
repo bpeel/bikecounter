@@ -48,6 +48,7 @@ let currentlyEditedEmoji = null;
 
 const LOCAL_STORAGE_COUNTS_PROPERTY = "bikecounter-counts";
 const LOCAL_STORAGE_PROPERTIES_PROPERTY = "bikecounter-properties";
+const LOCAL_STORAGE_SHOW_NAMES_PROPERTY = "bikecounter-show-names";
 
 function createHeaderRow() {
   const header = document.createElement("tr");
@@ -156,8 +157,24 @@ function extractPropertyAndValue(buttonNum) {
   }
 }
 
+function findParentWithClass(node, className) {
+  while (node) {
+    if (node instanceof Element && node.classList.contains(className))
+      return node;
+
+    node = node.parentNode;
+  }
+
+  return null;
+}
+
 function clickedButtonCb(event) {
-  const buttonNum = buttons.findIndex((button) => button == event.target);
+  const buttonDiv = findParentWithClass(event.target, "button");
+
+  if (!buttonDiv)
+    return;
+
+  const buttonNum = buttons.findIndex((button) => button == buttonDiv);
 
   if (buttonNum == -1)
     return;
@@ -266,17 +283,6 @@ function undoCb() {
     saveCounts(counts);
     updateCountsTable(counts);
   }
-}
-
-function findParentWithClass(node, className) {
-  while (node) {
-    if (node instanceof Element && node.className == className)
-      return node;
-
-    node = node.parentNode;
-  }
-
-  return null;
 }
 
 function hideEditError() {
@@ -630,8 +636,17 @@ function setUpButtons() {
     for (const [valueNum, value] of property.entries()) {
       const button = document.createElement("div");
       button.className = "button choice-" + valueNum;
-      const buttonText = value.name + " " + value.emoji;
-      button.appendChild(document.createTextNode(buttonText));
+
+      const buttonName = document.createElement("span");
+      buttonName.appendChild(document.createTextNode(value.name + " "));
+      buttonName.className = "button-name";
+      button.appendChild(buttonName);
+
+      const buttonEmoji = document.createElement("span");
+      buttonEmoji.appendChild(document.createTextNode(value.emoji));
+      buttonEmoji.className = "button-emoji";
+      button.appendChild(buttonEmoji);
+
       row.appendChild(button);
 
       buttons.push(button);
@@ -641,6 +656,30 @@ function setUpButtons() {
   }
 
   buttonContainer.addEventListener("click", clickedButtonCb);
+}
+
+function setShowNames(value) {
+  const classList = document.body.classList;
+
+  if (value)
+    classList.add("show-names");
+  else
+    classList.remove("show-names");
+}
+
+function loadShowNames() {
+  const loadedValue = localStorage.getItem(LOCAL_STORAGE_SHOW_NAMES_PROPERTY);
+  const value = loadedValue === null || !!loadedValue;
+
+  document.getElementById("show-name-checkbox").checked = value;
+  setShowNames(value);
+}
+
+function showNamesCb(event) {
+  const value = event.target.checked;
+
+  setShowNames(value);
+  localStorage.setItem(LOCAL_STORAGE_SHOW_NAMES_PROPERTY, value ? "yes" : "");
 }
 
 function setPage(chosenPage) {
@@ -701,6 +740,7 @@ function setup() {
 
   setUpCounts();
   setUpButtons();
+  loadShowNames();
   updateCountsTable(loadCounts());
 
   countButton.addEventListener("click", countButtonCb);
@@ -723,6 +763,8 @@ function setup() {
     .addEventListener("input", editInputCb);
   document.addEventListener("keydown", keydownCb);
   document.addEventListener("click", clickCb);
+  document.getElementById("show-name-checkbox")
+    .addEventListener("input", showNamesCb);
 }
 
 setup();

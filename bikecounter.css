@@ -63,6 +63,14 @@ body {
     user-select: none;
 }
 
+.button-name {
+    display: none;
+}
+
+.show-names .button-name {
+    display: inline;
+}
+
 #count-button, #commit-edit-button {
     margin-top: 1em;
 }
