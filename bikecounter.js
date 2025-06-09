@@ -43,6 +43,7 @@ let countElements = [];
 let buttons = [];
 let chosenProperties = 0;
 let chosenValues = 0;
+let repeatCount = 0;
 const countButton = document.getElementById("count-button");
 let currentlyEditedEmoji = null;
 
@@ -168,6 +169,12 @@ function findParentWithClass(node, className) {
   return null;
 }
 
+function disableCountButton() {
+  repeatCount = 0;
+  countButton.classList.remove("ready");
+  countButton.innerHTML = "Compter";
+}
+
 function clickedButtonCb(event) {
   const buttonDiv = findParentWithClass(event.target, "button");
 
@@ -205,9 +212,12 @@ function clickedButtonCb(event) {
     laterValues * laterMask;
 
   chosenProperties |= 1 << property;
+  repeatCount = 0;
 
   if (allChoicesAreMade())
     countButton.classList.add("ready");
+  else
+    disableCountButton();
 }
 
 function updateCountsTable(counts) {
@@ -262,8 +272,23 @@ function countBike(bikeNum) {
   updateCountsTable(counts);
 }
 
+function setCountButtonRepeat() {
+  let text = "";
+  let values = chosenValues;
+
+  for (const property of properties) {
+    text += property[values % property.length].emoji;
+    values = Math.floor(values / property.length);
+  }
+
+  text += " " + repeatCount;
+
+  countButton.innerHTML = "";
+  countButton.appendChild(document.createTextNode(text));
+}
+
 function countButtonCb() {
-  if (!allChoicesAreMade())
+  if (repeatCount == 0 && !allChoicesAreMade())
     return;
 
   for (const button of buttons)
@@ -271,12 +296,14 @@ function countButtonCb() {
 
   countBike(chosenValues);
 
-  chosenValues = 0;
   chosenProperties = 0;
-  countButton.classList.remove("ready");
+  repeatCount++;
+  setCountButtonRepeat();
 }
 
 function undoCb() {
+  disableCountButton();
+
   const counts = loadCounts();
 
   if (counts.pop() !== undefined) {
@@ -524,9 +551,9 @@ function commitEditCb() {
     localStorage.removeItem(LOCAL_STORAGE_COUNTS_PROPERTY);
     localStorage.setItem(LOCAL_STORAGE_PROPERTIES_PROPERTY,
                          JSON.stringify(properties));
-    countButton.classList.remove("ready");
     setUpButtons();
     setUpCounts();
+    disableCountButton();
   }
 }
 
@@ -742,6 +769,7 @@ function setup() {
   setUpButtons();
   loadShowNames();
   updateCountsTable(loadCounts());
+  disableCountButton();
 
   countButton.addEventListener("click", countButtonCb);
 
