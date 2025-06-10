@@ -587,9 +587,8 @@ function downloadTsv(tsv) {
   document.body.removeChild(elem);
 }
 
-function downloadCb() {
+function generateRawDataTsv(counts) {
   let tsv = "";
-  const counts = loadCounts();
 
   for (const values of properties) {
     for (const value of values)
@@ -618,6 +617,81 @@ function downloadCb() {
 
     tsv += "\n";
   }
+
+  return tsv;
+}
+
+function formatTimeQuarter(quarter) {
+  return new String(Math.floor(quarter / 4)).padStart(2, "0") +
+    ":" +
+    new String((quarter % 4 * 15)).padStart(2, "0");
+}
+
+function generateSummaryForQuarter(quarter, counts) {
+  const bikeNumCounts = {};
+
+  for (const [timeStamp, bikeNum] of counts)
+    bikeNumCounts[bikeNum] = (bikeNumCounts[bikeNum] || 0) + 1;
+
+  const nValues = properties.reduce((a, b) => a * b.length, 1);
+
+  let tsv = "";
+
+  for (let bikeNum = 0; bikeNum < nValues; bikeNum++) {
+    tsv += formatTimeQuarter(quarter) + "\t" + formatTimeQuarter(quarter + 1);
+
+    let bikeNumValue = bikeNum;
+
+    for (const property of properties) {
+      tsv += "\t" + property[bikeNumValue % property.length].name;
+      bikeNumValue = Math.floor(bikeNumValue / property.length);
+    }
+
+    tsv += "\t" + (bikeNumCounts[bikeNum] || 0) + "\n";
+  }
+
+  return tsv;
+}
+
+function generateSummaryTsv(counts) {
+  let lastQuarter = null;
+  let quarterStart = null;
+  const countDate = new Date();
+  let tsv = "";
+
+  for (const [countNum, [timeStamp, bikeNum]] of counts.entries()) {
+    countDate.setTime(timeStamp * 1000);
+
+    const minutesInDay = countDate.getHours() * 60 + countDate.getMinutes();
+    const quarter = Math.floor(minutesInDay / 15);
+
+    if (lastQuarter != quarter) {
+      if (quarterStart !== null) {
+        const quarterCounts = counts.slice(quarterStart, countNum);
+        tsv += generateSummaryForQuarter(lastQuarter, quarterCounts);
+      }
+      quarterStart = countNum;
+      lastQuarter = quarter;
+    }
+  }
+
+  if (quarterStart !== null)
+    tsv += generateSummaryForQuarter(lastQuarter, counts.slice(quarterStart));
+
+  return tsv;
+}
+
+function downloadCb() {
+  const counts = loadCounts();
+
+  const tsv =
+        "Données crues :\n" +
+        "\n" +
+        generateRawDataTsv(counts) +
+        "\n" +
+        "Résumé par quart d’heure :\n" +
+        "\n" +
+        generateSummaryTsv(counts);
 
   downloadTsv(tsv);
 }
